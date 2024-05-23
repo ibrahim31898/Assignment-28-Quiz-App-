@@ -1,3 +1,18 @@
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyAL_sac3vL519K1gDOVbMq52_8h_K2qqE0",
+    authDomain: "card-assignment-b3477.firebaseapp.com",
+    databaseURL: "https://card-assignment-b3477-default-rtdb.firebaseio.com",
+    projectId: "card-assignment-b3477",
+    storageBucket: "card-assignment-b3477.appspot.com",
+    messagingSenderId: "373095420041",
+    appId: "1:373095420041:web:f0447f64001383e2593658"
+  };
+  
+  // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
 let $ = document
 
 const time = $.querySelector('.time')
@@ -16,13 +31,14 @@ const resultBox = $.querySelector('.result-box')
 const cupImage = $.querySelector('.cup-image')
 const message = $.querySelector('.message-text')
 
-
 let firstQuezCount = 1
 let lastQuezCount = 1
 let rightQuez = 0
+let wrongAttempts = []
 let timer;
 let index = 0
-let timeCount = 40
+let timeCount = 20
+let startTime = 0
 
 function createTemplate(questions) {
     answerCotainer.innerHTML = ''
@@ -49,9 +65,7 @@ function createTemplate(questions) {
     }
 }
 
-
 function checkAnswer(answer) {
-
     clearInterval(timer)
     let answerClick = answer.innerHTML
     let answerMain = questions[index].answer
@@ -64,6 +78,11 @@ function checkAnswer(answer) {
         updateScore(rightQuez)
     } else {
         answer.classList.add('noAnswer')
+        wrongAttempts.push({
+            question: questions[index].question,
+            wrongAnswer: answerClick,
+            correctAnswer: answerMain
+        });
         for (let i = 0; i < allAnswerChild; i++) {
             if (answerCotainer.children[i].innerHTML === answerMain) {
                 answerCotainer.children[i].classList.add('rightAnswer')
@@ -74,8 +93,6 @@ function checkAnswer(answer) {
         answerCotainer.children[i].classList.add('disable')
     }
 }
-
-
 
 function timerContHandler() {
     timer = setInterval(function () {
@@ -115,7 +132,7 @@ function nextQuestionHandler() {
     createTemplate(questions)
     setTimeout(timer, 1000)
 
-    if (index == 7) {
+    if (index == questions.length) {
         nextQuestion.classList.remove('show-next')
         endQuez.classList.add('show-end')
     } else {
@@ -124,7 +141,6 @@ function nextQuestionHandler() {
 }
 
 function updateScore(right) {
-
     if (right > 6) {
         cupImage.setAttribute('src', 'images/gold.png')
         message.innerHTML = 'And congrats!'
@@ -145,6 +161,24 @@ function updateScore(right) {
     resultRight.innerHTML = rightQuez
     ofQuestion.innerHTML = questions.length
 
+    // Store the result in Firebase
+    storeResultInFirebase(right, questions.length);
+}
+
+function storeResultInFirebase(correctAnswers, totalQuestions) {
+    let newResultKey = database.ref().child('results').push().key;
+    let resultData = {
+        correctAnswers: correctAnswers,
+        totalQuestions: totalQuestions,
+        wrongAttempts: wrongAttempts,
+        timeTaken: 20 * questions.length - timeCount,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    let updates = {};
+    updates['/results/' + newResultKey] = resultData;
+
+    return database.ref().update(updates);
 }
 
 function showResultQuez() {
@@ -155,6 +189,27 @@ function showResultQuez() {
 function restartQuezHandler() {
     location.reload()
 }
+
+// Store the questions and correct answers in Firebase
+function storeQuestionsInFirebase() {
+    questions.forEach((question, index) => {
+        let newQuestionKey = database.ref().child('questions').push().key;
+        let questionData = {
+            question: question.question,
+            correctAnswer: question.answer,
+            options: question.options,
+            index: index + 1
+        };
+
+        let updates = {};
+        updates['/questions/' + newQuestionKey] = questionData;
+
+        database.ref().update(updates);
+    });
+}
+
+// Call storeQuestionsInFirebase when the script loads to store questions in Firebase
+storeQuestionsInFirebase();
 
 nextQuestion.addEventListener('click', nextQuestionHandler)
 endQuez.addEventListener('click', showResultQuez)

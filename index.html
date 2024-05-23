@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,8 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/ebda61e3fa.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 </head>
-
 <body>
     <div class="container">
         <header class="header">
@@ -25,8 +25,8 @@
         </main>
         <footer class="footer">
             <p><span class="first"></span> of <span class="last"></span> Question</p>
-            <a class="next-Question" href="#">next</a>
-            <a class="end-Quez" href="#">End Quez</a>
+            <a class="next-Question" href="#">Next</a>
+            <a class="end-Quez" href="#">End Quiz</a>
         </footer>
     </div>
     <div class="result-box">
@@ -35,11 +35,7 @@
         </div>
         <div class="message">
             <p class="message-text"></p>
-            <p> You got
-                <span class="result-right"></span>
-                out of
-                <span class="of-question"></span>
-            </p>
+            <p>You got <span class="result-right"></span> out of <span class="of-question"></span></p>
         </div>
         <a href="#" class="restart-quez">Restart Quiz</a>
     </div>
@@ -47,5 +43,4 @@
     <script src="questions.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
